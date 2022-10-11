@@ -21,17 +21,24 @@ const prepareDOMElements = () => {
 	popupCloseBtn = document.querySelector('.cancel');
 };
 
+// fetch(url, {
+// 	method: 'POST',
+// 	headers : 'applicatin/json' //cos tu jeszcze musisz dodac, sprawdz sobie
+// 	body: JSON.stringify({title})
+// })
+
 const main = () => {
 	prepareDOMElements();
 	prepareDOMEvents();
 };
 
-const fetchTodos = async (num) => {
-	const response = await fetch(
-		`https://jsonplaceholder.typicode.com/todos?_start=0&_limit=${num}`
-	);
-	const data = await response.json();
+const fetchTodos = async ({ num = 5 }) => {
+	if (num <= 0) {
+		console.log('Liczba todosów musi być większa od zera');
+		return null;
+	}
 
+	const response = await fetch(`http://localhost:4444`);
 	console.log(data);
 
 	ul.innerHTML = '';
@@ -108,7 +115,7 @@ const deleteTo = (e) => {
 
 form.addEventListener('submit', (e) => {
 	e.preventDefault();
-	fetchTodos(input.value);
+	fetchTodos({ num: input.value ? input.value : undefined });
 	input.value = '';
 });
 
