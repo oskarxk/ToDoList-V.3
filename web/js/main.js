@@ -1,4 +1,6 @@
-//https://jsonplaceholder.typicode.com/todos?_start=0&_limit=5
+// https://jsonplaceholder.typicode.com/todos?_start=0&_limit=5
+
+const { json } = require('express');
 
 const form = document.querySelector('.todo-form');
 const input = document.querySelector('.todo-form__input');
@@ -21,16 +23,25 @@ const prepareDOMElements = () => {
 	popupCloseBtn = document.querySelector('.cancel');
 };
 
-// fetch(url, {
-// 	method: 'POST',
-// 	headers : 'applicatin/json' //cos tu jeszcze musisz dodac, sprawdz sobie
-// 	body: JSON.stringify({title})
-// })
-
 const main = () => {
 	prepareDOMElements();
 	prepareDOMEvents();
 };
+
+fetch('http://localhost:4444/api/todolist', {
+	method: 'POST',
+	headers: {
+		'Content-Type': 'application.json',
+	},
+	body: JSON.stringify({
+		name: 'Task1',
+	}),
+})
+	.then((res) => {
+		return res.json();
+	})
+	.then((data) => console.log(data))
+	.catch((error) => console.log('ERROR'));
 
 const fetchTodos = async ({ num = 5 }) => {
 	if (num <= 0) {
@@ -38,7 +49,7 @@ const fetchTodos = async ({ num = 5 }) => {
 		return null;
 	}
 
-	const response = await fetch(`http://localhost:4444`);
+	const response = await fetch(`http://localhost:4444/api/todolist`);
 	console.log(data);
 
 	ul.innerHTML = '';
@@ -71,6 +82,7 @@ const fetchTodos = async ({ num = 5 }) => {
 		createToolsArea();
 	});
 };
+
 const checkClick = (e) => {
 	if (e.target.matches('.complete')) {
 		e.target.closest('li').classList.toggle('completed');
