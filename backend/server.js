@@ -1,12 +1,21 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const dotEnv = require('dotenv').config;
+const { errorHandler } = require('./middleware/errorMiddleware');
 const connectDB = require('./config/db');
 require('dotenv').config();
-// const connectDB = require('./server')
 
-const port = 4444;
+const port = process.env.PORT || 4444;
 const app = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+app.use('/api/todolist', require('./routes/todoRoutes'));
+
+app.use(errorHandler);
+
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
@@ -19,10 +28,6 @@ const todos = [
 		title: 'Kup mleko',
 	},
 ];
-
-app.get('/', function (req, res) {
-	res.send(todos);
-});
 
 app.post('/new', (req, res) => {
 	console.log(req.body);
