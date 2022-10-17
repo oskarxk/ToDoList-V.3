@@ -1,18 +1,12 @@
-// https://jsonplaceholder.typicode.com/todos?_start=0&_limit=5
-
-const { json } = require('express');
-
 const form = document.querySelector('.todo-form');
 const input = document.querySelector('.todo-form__input');
 let ul = document.querySelector('ul');
 let popupInput;
 let errorInfo;
-
-const prepareDOMEvents = () => {
-	ul.addEventListener('click', checkClick);
-	popupCloseBtn.addEventListener('click', closePopup);
-	popupAddBtn.addEventListener('click', changeTodoText);
-};
+let popup;
+let popupInfo;
+let popupAddBtn;
+let popupCloseBtn;
 
 const prepareDOMElements = () => {
 	errorInfo = document.querySelector('.error-info');
@@ -22,42 +16,29 @@ const prepareDOMElements = () => {
 	popupAddBtn = document.querySelector('.accept');
 	popupCloseBtn = document.querySelector('.cancel');
 };
+const prepareDOMEvents = () => {
+	ul.addEventListener('click', checkClick);
+	popupCloseBtn.addEventListener('click', closePopup);
+	popupAddBtn.addEventListener('click', changeTodoText);
+};
 
 const main = () => {
 	prepareDOMElements();
 	prepareDOMEvents();
 };
 
-fetch('http://localhost:4444/api/todolist', {
-	method: 'POST',
-	headers: {
-		'Content-Type': 'application.json',
-	},
-	body: JSON.stringify({
-		name: 'Task1',
-	}),
-})
-	.then((res) => {
-		return res.json();
-	})
-	.then((data) => console.log(data))
-	.catch((error) => console.log('ERROR'));
+let todos;
 
-const fetchTodos = async ({ num = 5 }) => {
-	if (num <= 0) {
-		console.log('Liczba todosów musi być większa od zera');
-		return null;
-	}
-
+const fetchTodos = async () => {
 	const response = await fetch(`http://localhost:4444/api/todolist`);
-	console.log(data);
-
+	const data = await response.json();
+	todos = data;
 	ul.innerHTML = '';
 
 	data.map((todo) => {
 		const li = document.createElement('li');
 		ul.appendChild(li);
-		li.innerHTML = `${todo.title}`;
+		li.innerHTML = `${todo.text}`;
 		li.append;
 
 		const createToolsArea = () => {
@@ -94,6 +75,7 @@ const checkClick = (e) => {
 	}
 };
 
+let toEdit;
 const editTodo = (e) => {
 	toEdit = e.target.closest('li');
 	popupInput.value = toEdit.firstChild.textContent;
@@ -125,10 +107,30 @@ const deleteTo = (e) => {
 	}
 };
 
+fetchTodos();
+
 form.addEventListener('submit', (e) => {
 	e.preventDefault();
-	fetchTodos({ num: input.value ? input.value : undefined });
-	input.value = '';
+	const inputValue = input.value;
+	const addTodo = async (inputValue) => {
+		console.log('wysylam fetcha');
+		try {
+			const response = await fetch('http://localhost:4444/api/todolist/new', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					text: inputValue,
+				}),
+			});
+			const data = await response.json();
+			console.log(data);
+			await fetchTodos();
+			// input.value = '';
+		} catch (e) {
+			console.log(e);
+		}
+	};
+	addTodo(inputValue);
 });
 
 document.addEventListener('DOMContentLoaded', main);
