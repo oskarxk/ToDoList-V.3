@@ -39,6 +39,7 @@ const fetchTodos = async () => {
 		const li = document.createElement('li');
 		ul.appendChild(li);
 		li.innerHTML = `${todo.text}`;
+		li.dataset.id = todo._id;
 		li.append;
 
 		const createToolsArea = () => {
@@ -87,8 +88,31 @@ const closePopup = () => {
 	popupInfo.textContent = '';
 };
 
-const changeTodoText = () => {
-	if (popupInput.value !== '') {
+const changeTodoText = async () => {
+	const id = toEdit.getAttribute('data-id');
+	const updatedName = popupInput.value;
+	if (updatedName !== '') {
+		const todo = {
+			_id: id,
+			text: updatedName,
+		};
+		console.log(todos);
+
+		try {
+			const response = await fetch('http://localhost:4444/api/todolist', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					todo,
+				}),
+			});
+			const data = await response.json();
+			console.log(data);
+			// input.value = '';
+		} catch (e) {
+			console.log(e);
+		}
+
 		toEdit.firstChild.textContent = popupInput.value;
 		popup.style.display = 'none';
 		popupInfo.textContent = '';
@@ -97,8 +121,23 @@ const changeTodoText = () => {
 	}
 };
 
-const deleteTo = (e) => {
-	e.target.closest('li').remove();
+const deleteTo = async (e) => {
+	// console.log(e.target.closest('li').getAttribute('data-id'));
+
+	const id = e.target.closest('li').getAttribute('data-id');
+
+	try {
+		const response = await fetch(`http://localhost:4444/api/todolist/${id}`, {
+			method: 'DELETE',
+		});
+		const data = await response.json();
+		console.log(data);
+
+		e.target.closest('li').remove();
+		// input.value = '';
+	} catch (e) {
+		console.log(e);
+	}
 
 	const allTodos = document.querySelectorAll('li');
 
@@ -131,6 +170,7 @@ form.addEventListener('submit', (e) => {
 		}
 	};
 	addTodo(inputValue);
+	input.value = '';
 });
 
 document.addEventListener('DOMContentLoaded', main);

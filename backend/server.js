@@ -19,8 +19,6 @@ app.get(
 	'/api/todolist',
 	asyncHandler(async (req, res) => {
 		const todo = await Todo.find({});
-
-		// res.status(200).json(todo);
 		res.send(todo);
 	})
 );
@@ -41,16 +39,14 @@ app.post(
 );
 
 app.put(
-	'/api/todolist/:id',
+	'/api/todolist/',
 	asyncHandler(async (req, res) => {
-		const todo = await Todo.findById(req.params.id);
-
+		const { todo } = req.body;
 		if (!todo) {
 			res.status(400);
-			throw new Error('Goal not found');
+			throw new Error('Todo not found');
 		}
-
-		const updateTodo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
+		const updateTodo = await Todo.findByIdAndUpdate({ _id: todo._id }, todo, {
 			new: true,
 		});
 
@@ -64,15 +60,13 @@ app.put(
 app.delete(
 	'/api/todolist/:id',
 	asyncHandler(async (req, res) => {
-		const todo = await Todo.findById(req.params.id);
+		const { id } = req.params;
 
-		if (!todo) {
+		if (!id) {
 			res.status(400);
 			throw new Error('Goal not found');
 		}
-
-		await todo.remove();
-
+		await Todo.deleteOne({ _id: id });
 		res.status(200).json({ id: req.params.id });
 	})
 );
