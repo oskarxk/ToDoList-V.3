@@ -171,6 +171,7 @@ form.addEventListener('submit', (e) => {
 	};
 	addTodo(inputValue);
 	input.value = '';
+	console.log('done');
 });
 
 document.addEventListener('DOMContentLoaded', main);
